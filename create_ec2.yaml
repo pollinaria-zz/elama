@@ -1,0 +1,89 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  vars:
+    hostname: jenkins
+    ec2_access_key: "" # User's access key
+    ec2_secret_key: "" # User's secret key. Safer way is import keys as enviromment variables.
+    instance_type: t2.micro
+    image: ami-0782e9ee97725263d #Ubuntu 16.04 basic
+    security_group: elama-test
+    region: us-east-2 # Random choice
+    keypair: elama-test
+  tasks:
+  
+
+  - name: Create a security group (http and ssh)
+    ec2_group:
+      name: "{{ security_group }}"
+      description: "Security fot test servers"
+      region: "{{ region }}"
+      aws_access_key: "{{ ec2_access_key }}"
+      aws_secret_key: "{{ ec2_secret_key }}"
+      rules:
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 80
+          to_port: 80
+          cidr_ip: 0.0.0.0/0
+      rules_egress:
+        - proto: all
+          cidr_ip: 0.0.0.0/0
+
+  - name: Create instance for Jenkins
+    ec2: 
+      image: "{{ image }}"
+      instance_type: "{{ instance_type }}"
+      aws_access_key: "{{ ec2_access_key }}"
+      aws_secret_key: "{{ ec2_secret_key }}"
+      instance_tags: '{ "Name":"jenkins" }'
+      region: "{{ region }}"
+      group: "{{ security_group }}"
+      keypair: "{{ keypair }}"
+      wait: true
+    register: jenkins
+
+  - name: Create instance for App
+    ec2: 
+      image: "{{ image }}"
+      instance_type: "{{ instance_type }}"
+      aws_access_key: "{{ ec2_access_key }}"
+      aws_secret_key: "{{ ec2_secret_key }}"
+      instance_tags: '{ "Name":"app" }'
+      region: "{{ region }}"
+      group: "{{ security_group }}"
+      keypair: "{{ keypair }}"
+      wait: true
+    register: app
+
+
+  - name: Wait for SSH to come up
+    wait_for:
+      host="{{ item.public_ip }}"
+      port=22 
+      state=started
+    with_items: 
+      - "{{ jenkins.instances }}"
+      - "{{ app.instances }}"
+
+  - name: Add created jenkins instance to hosts file
+    lineinfile:
+      dest: "./hosts" #better to use full path to file
+      regexp: "{{ item.public_ip }}" 
+      insertafter: 'jenkins-srv' 
+      line: "{{ item.public_ip }} hostname={{ item.tags['Name'] }}"
+    with_items: 
+      - "{{ jenkins.instances }}"
+
+  - name: Add created app instance to hosts file
+    lineinfile:
+      dest: "./hosts" #better to use full path to file
+      regexp: "{{ item.public_ip }}" 
+      insertafter: 'app-srv' 
+      line: "{{ item.public_ip }} hostname={{ item.tags['Name'] }}"
+    with_items: 
+      - "{{ app.instances }}"
