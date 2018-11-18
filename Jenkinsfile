@@ -1,4 +1,3 @@
-
 node{
     try{
         timestamps {
@@ -22,9 +21,9 @@ node{
 
                             stage('Run image on app') {
 
-                             sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker stop app"'
-                             sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker rm app"'
-                             sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker run -d --name app -p 80:80 pollinaria/elama-test tail -f /dev/null"'
+                             sh 'DOCKER_HOST=tcp://13.58.18.235:2375 docker stop app'
+                             sh 'DOCKER_HOST=tcp://13.58.18.235:2375 docker rm app'
+                             sh 'DOCKER_HOST=tcp://13.58.18.235:2375 docker run -d --name app -p 80:80 pollinaria/elama-test'
 
                             }
 
