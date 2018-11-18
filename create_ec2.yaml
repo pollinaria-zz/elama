@@ -4,8 +4,8 @@
   gather_facts: False
   vars:
     hostname: jenkins
-    ec2_access_key: "" # User's access key
-    ec2_secret_key: "" # User's secret key. Safer way is import keys as enviromment variables.
+    ec2_access_key: "" # User's  AWS access key
+    ec2_secret_key: "" # User's AWS secret key. Safer way is import keys as enviromment variables.
     instance_type: t2.micro
     image: ami-0782e9ee97725263d #Ubuntu 16.04 basic
     security_group: elama-test
@@ -14,7 +14,7 @@
   tasks:
   
 
-  - name: Create a security group (http and ssh)
+  - name: Create a security group (ssh, http and docker)
     ec2_group:
       name: "{{ security_group }}"
       description: "Security fot test servers"
@@ -30,6 +30,10 @@
           from_port: 80
           to_port: 80
           cidr_ip: 0.0.0.0/0
+        - proto: tcp
+          from_port: 2375
+          to_port: 2375
+          cidr_ip: 0.0.0.0/0 # Open just for test. Need to close this port from external world. 
       rules_egress:
         - proto: all
           cidr_ip: 0.0.0.0/0

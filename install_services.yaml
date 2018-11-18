@@ -96,6 +96,7 @@
       
       
 ####
+
 - hosts: jenkins-srv
   remote_user: ubuntu
   become: yes
@@ -103,8 +104,28 @@
     ansible_ssh_private_key_file: ./elama-test.pem
   
   tasks:
+
   - name: Add jenkins user to docker group
     user:
       name: jenkins
       groups: docker
       append: yes
+
+
+####
+
+- hosts: app-srv
+  remote_user: ubuntu
+  become: yes
+  vars:
+    ansible_ssh_private_key_file: ./elama-test.pem
+  
+  tasks:
+
+  - name: Stop Docker service
+    service:
+      name: docker
+      state: stopped
+
+  - name: Start Docker on 2375 port
+    shell: "dockerd -H tcp://0.0.0.0 -H unix:///var/run/docker.sock &"
