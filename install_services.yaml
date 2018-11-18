@@ -61,8 +61,7 @@
     debug:
       var: password.stdout
 
-
-
+####
 
 - hosts: app-srv,jenkins-srv
   remote_user: ubuntu
@@ -92,3 +91,18 @@
       - curl
       - software-properties-common
       - docker-ce
+      
+      
+####
+- hosts: jenkins-srv
+  remote_user: ubuntu
+  become: yes
+  vars:
+    ansible_ssh_private_key_file: ./elama-test.pem
+  
+  tasks:
+  - name: Add jenkins user to docker group
+    user:
+      name: jenkins
+      groups: docker
+      append: yes
