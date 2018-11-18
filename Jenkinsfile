@@ -13,9 +13,13 @@ node{
                             }
 
                             stage('Build image') {
-                                
-                              def appImage = docker.build("pollinaria/elama-test")
-                              appImage.push()
+                              
+                              //One of the ways 
+                              //def appImage = docker.build("pollinaria/elama-test")
+                              //appImage.push()
+
+                              sh 'docker build --rm -t pollinaria/elama-test .'
+                              sh 'docker push pollinaria/elama-test'
 
                             }
 
