@@ -108,3 +108,29 @@
       name: jenkins
       groups: docker
       append: yes
+
+####
+- hosts: app-srv
+  remote_user: ubuntu
+  become: yes
+  vars:
+    ansible_ssh_private_key_file: ./elama-test.pem
+  
+  tasks:
+
+  - name: Change Docker port 
+    lineinfile: 
+      dest: /lib/systemd/system/docker.service
+      regexp: '^ExecStart=/usr/bin/dockerd -H unix://'
+      insertbefore: BOF
+      line: 'ExecStart=/usr/bin/dockerd -H 0.0.0.0:8080'
+      state: presen
+
+
+  - name: Reload systemctl daemon 
+    shell: systemctl daemon-reload
+    
+  - name: Reload Docker 
+    service:
+      name: docker
+      state: restarted     
