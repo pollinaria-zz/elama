@@ -41,12 +41,14 @@
 
   - name: Add Jenkins APT repository
     shell: echo "deb https://pkg.jenkins.io/debian binary/" >> /etc/apt/sources.list
+   
+  - name: Update source list
+    shell: apt update #better to use apt module but it doesn't work perfect in this case
   
-  - name: Install jenkins
+  - name: Install Jenkins and Java
     apt:
       name: "{{ item }}"
       state: latest
-    update_cache: yes
     with_items:
       - oracle-java8-installer
       - ca-certificates
