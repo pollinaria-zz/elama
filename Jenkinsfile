@@ -24,7 +24,7 @@ node{
 
                              sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker stop app"'
                              sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker rm app"'
-                             sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker run -t --name app -p 80:80 pollinaria/elama-test sh &"'
+                             sh 'ssh -i /tmp/elama-test.pem ubuntu@13.58.18.235 "sudo docker run -d --name app -p 80:80 pollinaria/elama-test tail -f /dev/null"'
 
                             }
 
