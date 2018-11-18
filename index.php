@@ -3,6 +3,6 @@
   <title>Test page</title>
  </head>
  <body>
- <p>Hello eLama!</p>
+ <p>Hello eLama</p>
  </body>
 </html>
